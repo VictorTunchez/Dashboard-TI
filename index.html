@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard TI — DISCENTRO S.A.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F2F4F8;
+  --surface:#FFFFFF;
+  --surface2:#F8FAFC;
+  --border:#E8ECF2;
+  --text-primary:#1A2233;
+  --text-secondary:#64748B;
+  --text-muted:#94A3B8;
+  --indigo:#6366F1;
+  --indigo-light:#EEF2FF;
+  --green:#22C55E;
+  --green-light:#F0FDF4;
+  --amber:#F59E0B;
+  --amber-light:#FFFBEB;
+  --rose:#F43F5E;
+  --rose-light:#FFF1F2;
+  --teal:#14B8A6;
+  --violet:#8B5CF6;
+  --sky:#0EA5E9;
+}
+body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text-primary);min-height:100vh;}
+
+/* Layout */
+.layout{display:flex;min-height:100vh;}
+aside{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;flex-shrink:0;}
+main{flex:1;min-width:0;overflow:auto;}
+
+/* Sidebar */
+.logo-area{padding:18px 16px 14px;border-bottom:1px solid var(--border);}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#818CF8,#6366F1);display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:16px;height:16px;color:#fff;stroke:currentColor;}
+nav{flex:1;padding:10px 10px;overflow-y:auto;}
+.nav-section-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);padding:12px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:background .15s,color .15s;margin-bottom:1px;}
+.nav-item:hover,.nav-item.active{background:var(--indigo-light);color:var(--indigo);}
+.nav-item svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;}
+.user-area{padding:10px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s;}
+.user-chip:hover{background:var(--surface2);}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--indigo-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--indigo);flex-shrink:0;}
+
+/* Top bar */
+header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+#page-title{font-size:14px;font-weight:700;color:var(--text-primary);}
+.header-meta{font-size:11px;color:var(--text-muted);margin-top:1px;}
+
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filter-group{display:flex;align-items:center;gap:4px;}
+.filter-label{font-size:11px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
+.filter-select{font-family:inherit;font-size:11.5px;font-weight:500;color:var(--text-primary);background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;cursor:pointer;outline:none;transition:border-color .15s;}
+.filter-select:focus{border-color:var(--indigo);}
+.seg-btns{display:flex;gap:2px;background:#EEF2FF;border-radius:8px;padding:3px;}
+.seg-btn{font-family:inherit;font-size:11px;font-weight:600;padding:4px 12px;border-radius:6px;border:none;cursor:pointer;transition:background .15s,color .15s;color:#94a3b8;background:transparent;}
+.seg-btn.active{background:#fff;color:var(--indigo);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+/* Page content */
+.page-content{padding:20px 24px;display:none;}
+.page-content.visible{display:block;}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+.kpi-card{background:var(--surface);border-radius:14px;padding:16px 18px;border:1px solid var(--border);transition:transform .2s,box-shadow .2s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.07);}
+.kpi-label{font-size:10.5px;font-weight:600;color:var(--text-muted);margin-bottom:4px;}
+.kpi-value{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--text-primary);line-height:1;}
+.kpi-meta{font-size:10px;color:var(--text-muted);margin-top:6px;}
+.kpi-bar{height:3px;border-radius:2px;background:var(--border);margin-top:8px;overflow:hidden;}
+.kpi-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:600;letter-spacing:.2px;}
+.pill-ok{background:#DCFCE7;color:#166534;}
+.pill-warn{background:#FEF9C3;color:#854D0E;}
+.pill-crit{background:#FFE4E6;color:#9F1239;}
+.pill-info{background:var(--indigo-light);color:var(--indigo);}
+
+/* Chart cards */
+.chart-card{background:var(--surface);border-radius:14px;padding:18px 20px;border:1px solid var(--border);}
+.chart-card h3{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+.chart-card .subtitle{font-size:11px;color:var(--text-muted);margin-bottom:14px;}
+.chart-grid{display:grid;gap:14px;margin-bottom:14px;}
+.chart-grid-2{grid-template-columns:repeat(2,1fr);}
+.chart-grid-3{grid-template-columns:repeat(3,1fr);}
+.chart-grid-13{grid-template-columns:1fr 2fr;}
+.chart-grid-31{grid-template-columns:2fr 1fr;}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);}
+.data-table td{font-size:12.5px;color:var(--text-primary);padding:9px 12px;border-bottom:1px solid var(--surface2);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover td{background:var(--surface2);}
+.data-table td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.data-table td.center{text-align:center;}
+
+/* Progress bars (resources) */
+.res-bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:6px;}
+.res-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+
+/* Tooltips */
+[data-tip]{position:relative;}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1E293B;color:#fff;font-size:10.5px;padding:4px 8px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:100;}
+[data-tip]:hover::after{opacity:1;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px;}
+
+/* Sede filter chips */
+.sede-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.sede-chip{font-size:11px;font-weight:600;padding:4px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:background .15s,color .15s,border-color .15s;color:var(--text-secondary);}
+.sede-chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+
+/* KPI filter chips */
+.kpi-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.kpi-chip{font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;color:var(--text-secondary);}
+.kpi-chip.active{background:var(--indigo-light);color:var(--indigo);border-color:var(--indigo);}
+
+/* Divider */
+.section-divider{height:1px;background:var(--border);margin:18px 0;}
+
+/* Stat summary strip */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:18px;border:1px solid var(--border);}
+.stat-item{}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;}
+.stat-lbl{font-size:10px;color:var(--text-muted);margin-top:1px;}
+
+/* Radar legend */
+.radar-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;}
+.radar-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);}
+.radar-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+@media(max-width:900px){
+  aside{width:48px;overflow:hidden;}
+  .nav-item span,.nav-section-label,.logo-text,.user-info{display:none;}
+  .chart-grid-2,.chart-grid-3,.chart-grid-13,.chart-grid-31{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="logo-area">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="logo-mark">
+        <svg viewBox="0 0 20 20" fill="none" stroke-width="2"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+      </div>
+      <div class="logo-text">
+        <div style="font-size:12px;font-weight:800;color:var(--text-primary);">DISCENTRO</div>
+        <div style="font-size:10px;color:var(--text-muted);">Dashboard TI</div>
+      </div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section-label">Principal</div>
+    <div class="nav-item active" onclick="setNav(this,'overview')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Resumen</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'infra')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span>Infraestructura</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'incidents')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Incidentes</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'security')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Seguridad</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'kpis')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>KPIs</span>
+    </div>
+    <div class="nav-section-label">Análisis</div>
+    <div class="nav-item" onclick="setNav(this,'trends')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      <span>Tendencias</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'sedes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Por Sede</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'budget')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <span>Presupuesto</span>
+    </div>
+  </nav>
+  <div class="user-area">
+    <div class="user-chip">
+      <div class="avatar">VT</div>
+      <div class="user-info">
+        <div style="font-size:11.5px;font-weight:600;color:var(--text-primary);">Ing. V. Tunchez</div>
+        <div style="font-size:10px;color:var(--text-muted);">Jefe de TI</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <!-- TOP BAR -->
+  <header>
+    <div>
+      <div id="page-title">Resumen General</div>
+      <div class="header-meta">DISCENTRO S.A. · Mazatenango · <span id="live-date"></span></div>
+    </div>
+    <div class="filter-bar">
+      <!-- Period toggle -->
+      <div class="filter-group">
+        <span class="filter-label">Periodo:</span>
+        <div class="seg-btns">
+          <button class="seg-btn active" id="btn-actual" onclick="switchPeriod('actual')">Actual</button>
+          <button class="seg-btn" id="btn-proyect" onclick="switchPeriod('proyect')">Proyectado</button>
+        </div>
+      </div>
+      <!-- Year range filter -->
+      <div class="filter-group">
+        <span class="filter-label">Rango:</span>
+        <select class="filter-select" id="range-filter" onchange="applyRangeFilter()">
+          <option value="all">Todos (19 meses)</option>
+          <option value="hist">Histórico (Jun–May 25)</option>
+          <option value="proj">Proyectado (Jun–Dic 25)</option>
+          <option value="h2-24">2do Semestre 2024</option>
+          <option value="h1-25">1er Semestre 2025</option>
+        </select>
+      </div>
+      <!-- Status badge -->
+      <span class="pill" id="sys-status">Cargando…</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ OVERVIEW PAGE ═══════════ -->
+  <div class="page-content visible" id="page-overview">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid" id="kpi-cards-row"></div>
+
+    <!-- Charts row 1 -->
+    <div class="chart-grid chart-grid-2" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <h3>Disponibilidad (Uptime) Mensual</h3>
+        <div class="subtitle">Comparativa histórica vs meta 99.5%</div>
+        <canvas id="chart-uptime" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Incidentes por Mes y Prioridad</h3>
+        <div class="subtitle">P1, P2 y total mensual</div>
+        <canvas id="chart-incidents" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Charts row 2 -->
+    <div class="chart-grid chart-grid-31" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <h3>MTTR — Tiempo Promedio de Resolución (horas)</h3>
+        <div class="subtitle">Mensual vs meta 2h (P1)</div>
+        <canvas id="chart-mttr" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Incidentes por Categoría</h3>
+        <div class="subtitle">Total todas las sedes</div>
+        <canvas id="chart-donut" height="175"></canvas>
+      </div>
+    </div>
+
+    <!-- Sede table + resources -->
+    <div class="chart-grid chart-grid-31">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3>Incidentes por Sede y Categoría</h3>
+          <span style="font-size:10.5px;color:var(--text-muted);">May 2025</span>
+        </div>
+        <div id="sede-table-wrap" style="overflow-x:auto;">
+          <table class="data-table" id="sede-table"></table>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 style="margin-bottom:16px;">Recursos del Sistema</h3>
+        <div id="resources-list"></div>
+        <div class="section-divider"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:8px;">
+            <div class="stat-val" id="stat-total-inc" style="font-size:20px;">—</div>
+            <div class="stat-lbl">Inc. totales/mes</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:8px;">
+            <div class="stat-val" id="stat-p1" style="font-size:20px;">—</div>
+            <div class="stat-lbl">Críticos P1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INFRA PAGE ═══════════ -->
+  <div class="page-content" id="page-infra">
+    <div class="chart-grid chart-grid-2" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <h3>Inventario de Activos TI — Estado</h3>
+        <div class="subtitle">Distribución por categoría y condición</div>
+        <canvas id="chart-assets" height="230"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Utilización de Recursos — Radar</h3>
+        <div class="subtitle">Estado actual vs metas</div>
+        <canvas id="chart-servers" height="230"></canvas>
+        <div class="radar-legend" style="margin-top:8px;">
+          <div class="radar-legend-item"><div class="radar-dot" style="background:#FDA4AF;"></div>Estado Actual</div>
+          <div class="radar-legend-item"><div class="radar-dot" style="background:#86EFAC;"></div>Meta</div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3>Inventario Detallado de Activos</h3>
+        <div class="filter-group">
+          <span class="filter-label">Filtrar:</span>
+          <select class="filter-select" onchange="filterAssets(this.value)">
+            <option value="all">Todos</option>
+            <option value="Crítico">Crítico</option>
+            <option value="Alto riesgo">Alto riesgo</option>
+            <option value="Regular">Regular</option>
+            <option value="Bueno">Bueno</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="assets-table">
+          <thead><tr><th>Activo</th><th>Cant.</th><th>Marca/Modelo</th><th>Antigüedad</th><th>Estado</th></tr></thead>
+          <tbody id="assets-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INCIDENTS PAGE ═══════════ -->
+  <div class="page-content" id="page-incidents">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="filter-label">Filtrar métricas:</span>
+        <div class="kpi-chips" id="inc-metric-chips" style="margin-bottom:0;"></div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Período:</span>
+        <select class="filter-select" id="inc-range" onchange="updateIncidentCharts()">
+          <option value="all">Completo (19 meses)</option>
+          <option value="hist">Solo histórico</option>
+          <option value="proj">Solo proyectado</option>
+          <option value="h2-24">2do Sem 2024</option>
+          <option value="h1-25">1er Sem 2025</option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-grid chart-grid-2" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <h3>Incidentes Totales — Evolución</h3>
+        <div class="subtitle">Total, P1 y P2 por mes</div>
+        <canvas id="chart-inc-full" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>MTTR — Evolución Mensual</h3>
+        <div class="subtitle">Horas promedio vs meta 2h</div>
+        <canvas id="chart-mttr-full" height="220"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3>Historial Completo de KPIs</h3>
+        <div class="filter-group">
+          <span class="filter-label">Ordenar:</span>
+          <select class="filter-select" id="hist-sort" onchange="renderHistoryTable()">
+            <option value="asc">Cronológico</option>
+            <option value="desc">Más reciente</option>
+            <option value="inc-desc">Mayor inc.</option>
+            <option value="uptime-asc">Menor uptime</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Mes</th><th>Incidentes</th><th>P1</th><th>P2</th><th>Uptime</th>
+              <th>MTTR(h)</th><th>CPU%</th><th>RAM%</th><th>Storage%</th><th>Latencia WAN</th><th>CSAT</th>
+            </tr>
+          </thead>
+          <tbody id="history-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECURITY PAGE ═══════════ -->
+  <div class="page-content" id="page-security">
+    <div class="chart-grid chart-grid-2" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <h3>Alertas SIEM por Severidad</h3>
+          <select class="filter-select" id="siem-view" onchange="updateSIEM()">
+            <option value="stack">Apilado</option>
+            <option value="group">Agrupado</option>
+            <option value="high">Solo Alta</option>
+            <option value="med">Solo Media</option>
+          </select>
+        </div>
+        <div class="subtitle">Histórico mensual con meta &lt; 10</div>
+        <canvas id="chart-siem" height="215"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Cumplimiento de Parches</h3>
+        <div class="subtitle">Evolución mensual vs meta 98%</div>
+        <canvas id="chart-patches" height="215"></canvas>
+      </div>
+    </div>
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <h3>Controles de Seguridad ISO 27001</h3>
+          <span class="pill pill-crit">Global: 45%</span>
+        </div>
+        <div id="iso-controls-list"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Resumen de Seguridad</h3>
+        <div class="subtitle">KPIs críticos actuales vs proyectados</div>
+        <canvas id="chart-sec-compare" height="210"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ KPIs PAGE ═══════════ -->
+  <div class="page-content" id="page-kpis">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="filter-group">
+        <span class="filter-label">Perspectiva:</span>
+        <select class="filter-select" id="kpi-persp" onchange="renderKPITable()">
+          <option value="all">Todas</option>
+          <option value="Disponibilidad">Disponibilidad</option>
+          <option value="Incidentes">Incidentes</option>
+          <option value="Rendimiento">Rendimiento</option>
+          <option value="Seguridad">Seguridad</option>
+          <option value="Red">Red</option>
+          <option value="Continuidad">Continuidad</option>
+          <option value="Financiero">Financiero</option>
+          <option value="Experiencia">Experiencia</option>
+          <option value="Eficiencia">Eficiencia</option>
+          <option value="Capacidad">Capacidad</option>
+          <option value="Aplicaciones">Aplicaciones</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Estado:</span>
+        <select class="filter-select" id="kpi-estado" onchange="renderKPITable()">
+          <option value="all">Todos</option>
+          <option value="Crítico">Crítico</option>
+          <option value="Alerta">Alerta</option>
+          <option value="Normal">Normal</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Vista:</span>
+        <div class="seg-btns">
+          <button class="seg-btn active" id="kpi-view-actual" onclick="switchKPIView('actual')">Actual</button>
+          <button class="seg-btn" id="kpi-view-proj" onclick="switchKPIView('proj')">Proyectado</button>
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;font-size:11px;">
+        <span id="kpi-count-crit" class="pill pill-crit">— Críticos</span>
+        <span id="kpi-count-warn" class="pill pill-warn">— Alertas</span>
+        <span id="kpi-count-ok" class="pill pill-ok">— Normales</span>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="kpis-table">
+          <thead><tr><th>ID</th><th>KPI</th><th>Valor</th><th>Meta</th><th>Cumplimiento</th><th>Perspectiva</th><th>Estado</th></tr></thead>
+          <tbody id="kpis-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TRENDS PAGE ═══════════ -->
+  <div class="page-content" id="page-trends">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div class="filter-group">
+        <span class="filter-label">Métrica:</span>
+        <select class="filter-select" id="trend-metric" onchange="updateTrendCharts()">
+          <option value="all">Todas</option>
+          <option value="uptime">Uptime</option>
+          <option value="inc">Incidentes P1</option>
+          <option value="csat">CSAT</option>
+          <option value="mttr">MTTR</option>
+          <option value="cpu">CPU</option>
+          <option value="ram">RAM</option>
+          <option value="lat">Latencia WAN</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Mostrar:</span>
+        <select class="filter-select" id="trend-show" onchange="updateTrendCharts()">
+          <option value="both">Histórico + Proyectado</option>
+          <option value="hist">Solo histórico</option>
+          <option value="proj">Solo proyectado</option>
+        </select>
+      </div>
+    </div>
+    <div id="trend-charts-container" class="chart-grid chart-grid-2"></div>
+  </div>
+
+  <!-- ═══════════ SEDES PAGE ═══════════ -->
+  <div class="page-content" id="page-sedes">
+    <div style="margin-bottom:14px;">
+      <span class="filter-label" style="display:block;margin-bottom:8px;">Seleccionar sede:</span>
+      <div class="sede-chips" id="sede-chips-main">
+        <div class="sede-chip active" onclick="filterSede(this,'all')">Todas las sedes</div>
+        <div class="sede-chip" onclick="filterSede(this,'Mazatenango')">Mazatenango</div>
+        <div class="sede-chip" onclick="filterSede(this,'Xela')">Xela</div>
+        <div class="sede-chip" onclick="filterSede(this,'Escuintla')">Escuintla</div>
+        <div class="sede-chip" onclick="filterSede(this,'Chiquimula')">Chiquimula</div>
+      </div>
+    </div>
+    <div class="stat-strip" id="sede-stat-strip"></div>
+    <div class="chart-grid chart-grid-2" style="margin-bottom:14px;">
+      <div class="chart-card">
+        <h3>Incidentes por Categoría — Sede Seleccionada</h3>
+        <div class="subtitle">Desglose de tipos de incidentes</div>
+        <canvas id="chart-sede-cat" height="230"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Comparativa entre Sedes</h3>
+        <div class="subtitle">Total de incidentes por categoría</div>
+        <canvas id="chart-sede-compare" height="230"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3 style="margin-bottom:12px;">Detalle por Sede y Categoría</h3>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="sede-detail-table"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BUDGET PAGE ═══════════ -->
+  <div class="page-content" id="page-budget">
+    <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px;">
+      <div class="kpi-card" style="text-align:center;">
+        <div class="kpi-label">Presupuesto Total Aprobado</div>
+        <div class="kpi-value" style="font-size:20px;">Q. 1,850,000</div>
+        <span class="pill pill-ok" style="margin-top:8px;display:inline-flex;">Aprobado</span>
+      </div>
+      <div class="kpi-card" style="text-align:center;">
+        <div class="kpi-label">ROI Proyectado Año 1</div>
+        <div class="kpi-value" style="font-size:20px;color:var(--green);">+Q. 320,000</div>
+        <span class="pill pill-ok" style="margin-top:8px;display:inline-flex;">Positivo</span>
+      </div>
+      <div class="kpi-card" style="text-align:center;">
+        <div class="kpi-label">Costo Actual por Incidente</div>
+        <div class="kpi-value" style="font-size:20px;color:var(--rose);">Q. 890</div>
+        <div class="kpi-meta">Meta post-impl.: Q. 450</div>
+      </div>
+    </div>
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <h3>Distribución Presupuesto por Fase</h3>
+          <select class="filter-select" id="budget-chart-type" onchange="updateBudgetChart()">
+            <option value="doughnut">Dona</option>
+            <option value="bar">Barras</option>
+            <option value="polarArea">Polar</option>
+          </select>
+        </div>
+        <div class="subtitle">Total Q. 1,850,000</div>
+        <canvas id="chart-budget" height="240"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3 style="margin-bottom:12px;">Desglose por Fase de Inversión</h3>
+        <table class="data-table" id="budget-table">
+          <thead><tr><th>Fase</th><th>Descripción</th><th>Inversión (Q.)</th><th>%</th><th>Barra</th></tr></thead>
+          <tbody id="budget-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ═══════ DATA ═══════
+const MONTHS_HIST = ['Jun-24','Jul-24','Ago-24','Sep-24','Oct-24','Nov-24','Dic-24','Ene-25','Feb-25','Mar-25','Abr-25','May-25'];
+const MONTHS_PROJ = ['Jun-25','Jul-25','Ago-25','Sep-25','Oct-25','Nov-25','Dic-25'];
+const MONTHS_ALL  = [...MONTHS_HIST, ...MONTHS_PROJ];
+
+const HIST = {
+  months: MONTHS_HIST,
+  inc:    [42,38,51,45,39,47,62,55,48,44,57,61],
+  p1:     [6,4,8,5,4,7,10,9,6,5,9,11],
+  p2:     [11,9,14,12,8,13,18,15,13,10,16,17],
+  uptime: [97.2,97.8,96.4,97.1,98.1,96.9,95.2,95.8,96.6,97.3,96.1,95.5],
+  mttr:   [5.8,5.2,6.4,5.9,4.8,6.1,7.3,7.0,6.2,5.5,6.8,7.1],
+  cpu:    [72,70,76,74,68,75,82,78,76,74,79,81],
+  ram:    [76,74,80,79,72,78,86,82,80,79,83,85],
+  stor:   [65,66,67,68,68,69,70,71,73,74,75,76],
+  lat:    [170,162,180,175,168,178,192,185,178,172,190,195],
+  csat:   [3.1,3.3,2.9,3.0,3.4,2.8,2.5,2.6,3.0,3.2,2.7,2.6],
+};
+
+const PROJ = {
+  months: MONTHS_PROJ,
+  inc:    [28,22,25,18,15,20,24],
+  p1:     [3,2,2,1,1,2,2],
+  uptime: [99.1,99.3,99.2,99.5,99.6,99.4,99.3],
+  mttr:   [3.2,2.8,3.0,2.1,1.9,2.5,2.7],
+  cpu:    [62,60,63,58,57,61,64],
+  ram:    [68,66,67,64,63,66,69],
+  stor:   [68,67,69,65,63,64,66],
+  lat:    [28,25,27,24,22,26,28],
+  csat:   [3.6,3.8,3.7,4.0,4.1,3.9,3.8],
+};
+
+// Sedes data
+const SEDES_DATA = {
+  categories: ['Fallo Hardware','Conectividad WAN','Errores ERP','Prob. Usuario','Seg. Informática','Fallos Backup','Sol. Servicio'],
+  Mazatenango: [4,2,6,8,2,1,12],
+  Xela:        [1,4,3,4,1,0,5],
+  Escuintla:   [1,5,2,3,1,0,4],
+  Chiquimula:  [1,5,2,3,1,0,3],
+  totals:      [7,16,13,18,5,1,24],
+};
+
+// KPIs
+const KPI_ACTUAL = [
+  {id:'KPI-01',kpi:'Uptime Infraestructura',val:'95.5%',meta:'≥ 99.5%',pct:96,persp:'Disponibilidad',estado:'Crítico'},
+  {id:'KPI-02',kpi:'MTTR',val:'7.1h',meta:'< 2h (P1)',pct:28,persp:'Incidentes',estado:'Crítico'},
+  {id:'KPI-03',kpi:'MTBF',val:'22 días',meta:'> 90 días',pct:24,persp:'Disponibilidad',estado:'Crítico'},
+  {id:'KPI-04',kpi:'Uso CPU Servidores',val:'81%',meta:'< 70%',pct:86,persp:'Rendimiento',estado:'Alerta'},
+  {id:'KPI-05',kpi:'Uso RAM Servidores',val:'85%',meta:'< 75%',pct:88,persp:'Rendimiento',estado:'Alerta'},
+  {id:'KPI-06',kpi:'Uso Almacenamiento',val:'76%',meta:'< 80%',pct:95,persp:'Capacidad',estado:'Normal'},
+  {id:'KPI-07',kpi:'Latencia WAN',val:'195ms',meta:'< 30ms',pct:15,persp:'Red',estado:'Crítico'},
+  {id:'KPI-08',kpi:'Incidentes por Mes',val:'61 (11 P1)',meta:'< 15 (P1+P2)',pct:20,persp:'Incidentes',estado:'Crítico'},
+  {id:'KPI-09',kpi:'Resolución 1er Nivel',val:'48%',meta:'≥ 70%',pct:69,persp:'Eficiencia',estado:'Alerta'},
+  {id:'KPI-10',kpi:'Cumplimiento Parches',val:'72%',meta:'≥ 98%',pct:73,persp:'Seguridad',estado:'Alerta'},
+  {id:'KPI-11',kpi:'Alertas SIEM/mes',val:'47',meta:'< 10',pct:21,persp:'Seguridad',estado:'Crítico'},
+  {id:'KPI-12',kpi:'Tiempo Respuesta ERP',val:'4.8s',meta:'< 2s',pct:42,persp:'Aplicaciones',estado:'Alerta'},
+  {id:'KPI-13',kpi:'Éxito de Backups',val:'94.2%',meta:'≥ 99.9%',pct:94,persp:'Continuidad',estado:'Alerta'},
+  {id:'KPI-14',kpi:'Costo por Incidente',val:'Q. 890',meta:'< Q. 450',pct:51,persp:'Financiero',estado:'Crítico'},
+  {id:'KPI-15',kpi:'CSAT Usuarios',val:'2.6/5.0',meta:'≥ 4.0/5.0',pct:65,persp:'Experiencia',estado:'Alerta'},
+];
+const KPI_PROJ = [
+  {id:'KPI-01',kpi:'Uptime Infraestructura',val:'99.3%',meta:'≥ 99.5%',pct:99.8,persp:'Disponibilidad',estado:'Alerta'},
+  {id:'KPI-02',kpi:'MTTR',val:'2.7h',meta:'< 2h (P1)',pct:74,persp:'Incidentes',estado:'Alerta'},
+  {id:'KPI-03',kpi:'MTBF',val:'N/D',meta:'> 90 días',pct:0,persp:'Disponibilidad',estado:'Alerta'},
+  {id:'KPI-04',kpi:'Uso CPU Servidores',val:'64%',meta:'< 70%',pct:91,persp:'Rendimiento',estado:'Normal'},
+  {id:'KPI-05',kpi:'Uso RAM Servidores',val:'69%',meta:'< 75%',pct:92,persp:'Rendimiento',estado:'Normal'},
+  {id:'KPI-06',kpi:'Uso Almacenamiento',val:'65%',meta:'< 80%',pct:81,persp:'Capacidad',estado:'Normal'},
+  {id:'KPI-07',kpi:'Latencia WAN',val:'27ms',meta:'< 30ms',pct:90,persp:'Red',estado:'Normal'},
+  {id:'KPI-08',kpi:'Incidentes por Mes',val:'22 (2 P1)',meta:'< 20/mes',pct:91,persp:'Incidentes',estado:'Alerta'},
+  {id:'KPI-09',kpi:'Resolución 1er Nivel',val:'N/D',meta:'≥ 70%',pct:0,persp:'Eficiencia',estado:'Alerta'},
+  {id:'KPI-10',kpi:'Cumplimiento Parches',val:'97%',meta:'≥ 98%',pct:99,persp:'Seguridad',estado:'Alerta'},
+  {id:'KPI-11',kpi:'Alertas SIEM/mes',val:'N/D',meta:'< 10',pct:0,persp:'Seguridad',estado:'Alerta'},
+  {id:'KPI-12',kpi:'Tiempo Respuesta ERP',val:'N/D',meta:'< 2s',pct:0,persp:'Aplicaciones',estado:'Alerta'},
+  {id:'KPI-13',kpi:'Éxito de Backups',val:'99.7%',meta:'≥ 99.9%',pct:99.8,persp:'Continuidad',estado:'Alerta'},
+  {id:'KPI-14',kpi:'Costo por Incidente',val:'N/D',meta:'< Q. 450',pct:0,persp:'Financiero',estado:'Alerta'},
+  {id:'KPI-15',kpi:'CSAT Usuarios',val:'3.8/5.0',meta:'≥ 4.0/5.0',pct:95,persp:'Experiencia',estado:'Alerta'},
+];
+
+const BUDGET = [
+  {fase:'Fase 1',desc:'Diagnóstico y Diseño',inv:85000,pct:4.6},
+  {fase:'Fase 2',desc:'Infraestructura de Red',inv:420000,pct:22.7},
+  {fase:'Fase 3',desc:'Virtualización y Servidores',inv:680000,pct:36.8},
+  {fase:'Fase 4',desc:'Monitoreo y Seguridad',inv:315000,pct:17.0},
+  {fase:'Fase 5',desc:'BI y Dashboard KPI',inv:210000,pct:11.4},
+  {fase:'Conting.',desc:'Contingencia (8%)',inv:140000,pct:7.6},
+];
+
+const SIEM_HIGH = [18,15,22,20,14,21,28,25,20,18,24,27];
+const SIEM_MED  = [12,10,14,13,9,13,16,14,12,11,15,15];
+const PATCH_HIST = [60,62,58,63,65,61,67,68,70,71,72,72];
+
+const ASSETS = [
+  {activo:'Servidores físicos',cant:4,modelo:'Dell PowerEdge R720/R620',edad:'8–11 años',estado:'Crítico'},
+  {activo:'Switches capa 2',cant:12,modelo:'Cisco Catalyst 2960 (EoL)',edad:'9–12 años',estado:'Crítico'},
+  {activo:'Routers WAN',cant:4,modelo:'Cisco ISR 1900 (EoL)',edad:'10 años',estado:'Crítico'},
+  {activo:'Firewalls',cant:2,modelo:'Fortinet 60D (EoL)',edad:'8 años',estado:'Alto riesgo'},
+  {activo:'Access Points WiFi',cant:18,modelo:'Ubiquiti UAP-AC gen2',edad:'5–6 años',estado:'Regular'},
+  {activo:'Laptops corporativas',cant:48,modelo:'Lenovo ThinkPad E-series',edad:'2–5 años',estado:'Bueno'},
+  {activo:'UPS',cant:6,modelo:'APC Smart-UPS 1500VA',edad:'7–10 años',estado:'Crítico'},
+  {activo:'NAS / Almacenamiento',cant:2,modelo:'Synology DS918+',edad:'4 años',estado:'Regular'},
+];
+
+const ISO_CONTROLS = [
+  {name:'Control de Acceso',val:35},
+  {name:'Gestión de Contraseñas',val:40},
+  {name:'Protección Endpoints',val:55},
+  {name:'Gestión de Parches',val:72},
+  {name:'Respaldo de Datos',val:94},
+  {name:'Seguridad Perimetral',val:60},
+  {name:'Monitoreo / SIEM',val:15},
+  {name:'Concienciación',val:30},
+];
+
+// ═══════ STATE ═══════
+let currentPeriod = 'actual';
+let currentKPIView = 'actual';
+let currentSede = 'all';
+let charts = {};
+
+// ═══════ COLORS ═══════
+const C = {
+  indigo:'#818CF8', rose:'#FDA4AF', amber:'#FCD34D',
+  green:'#86EFAC', violet:'#C4B5FD', teal:'#5EEAD4',
+  sky:'#7DD3FC', pink:'#F9A8D4',
+};
+
+function gradFill(ctx, rgba) {
+  const g = ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
+  g.addColorStop(0, rgba.replace(/[\d.]+\)$/,'0.22)'));
+  g.addColorStop(1, rgba.replace(/[\d.]+\)$/,'0)'));
+  return g;
+}
+
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#94a3b8';
+
+const TT = {backgroundColor:'#fff',titleColor:'#334155',bodyColor:'#64748b',borderColor:'#e2e8f0',borderWidth:1,padding:10};
+
+function lineOpt(yMin,yMax,step){
+  return {
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:true,labels:{boxWidth:9,padding:12,font:{size:10}}},tooltip:{mode:'index',intersect:false,...TT}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:9.5},maxRotation:40}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},min:yMin,max:yMax,ticks:{stepSize:step,font:{size:10}}}
+    }
+  };
+}
+function barOpt(stacked){
+  return {
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:true,labels:{boxWidth:9,padding:12,font:{size:10}}},tooltip:{mode:'index',intersect:false,...TT}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:9.5},maxRotation:40},stacked:!!stacked},
+      y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10}},stacked:!!stacked}
+    }
+  };
+}
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+// ═══════ RANGE FILTER HELPERS ═══════
+function getRangeData(key) {
+  const range = document.getElementById('range-filter')?.value || 'all';
+  const allLabels = MONTHS_ALL;
+  const allData = [...HIST[key]||[], ...PROJ[key]||[]];
+  let indices;
+  if(range==='hist')   indices=[...Array(12).keys()];
+  else if(range==='proj') indices=[...Array(7).keys()].map(i=>i+12);
+  else if(range==='h2-24') indices=[0,1,2,3,4,5];
+  else if(range==='h1-25') indices=[6,7,8,9,10,11];
+  else indices=[...Array(19).keys()];
+  return {labels:indices.map(i=>allLabels[i]),data:indices.map(i=>allData[i])};
+}
+
+function getIncRangeData(){
+  const sel = document.getElementById('inc-range')?.value||'all';
+  const allL = MONTHS_ALL;
+  const allInc=[...HIST.inc,...PROJ.inc];
+  const allP1=[...HIST.p1,...PROJ.p1];
+  const allP2=[...HIST.p2,...Array(7).fill(null)];
+  const allMttr=[...HIST.mttr,...PROJ.mttr];
+  let idx;
+  if(sel==='hist')  idx=[...Array(12).keys()];
+  else if(sel==='proj') idx=[...Array(7).keys()].map(i=>i+12);
+  else if(sel==='h2-24') idx=[0,1,2,3,4,5];
+  else if(sel==='h1-25') idx=[6,7,8,9,10,11];
+  else idx=[...Array(19).keys()];
+  return {
+    labels:idx.map(i=>allL[i]),
+    inc:idx.map(i=>allInc[i]),
+    p1:idx.map(i=>allP1[i]),
+    p2:idx.map(i=>allP2[i]),
+    mttr:idx.map(i=>allMttr[i]),
+  };
+}
+
+// ═══════ OVERVIEW ═══════
+function buildKPICards(){
+  const d = currentPeriod === 'actual'
+    ? {uptime:95.5,mttr:7.1,inc:11,cpu:81,ram:85,csat:2.6,lat:195,stor:76,bk:94.2,patch:72,totalInc:61,p1:11}
+    : {uptime:99.3,mttr:2.7,inc:2,cpu:64,ram:69,csat:3.8,lat:27,stor:65,bk:99.7,patch:97,totalInc:22,p1:2};
+
+  const badges = {
+    uptime: d.uptime>=99.5?'pill-ok':d.uptime>=98?'pill-warn':'pill-crit',
+    mttr:   d.mttr<2?'pill-ok':d.mttr<5?'pill-warn':'pill-crit',
+    inc:    d.inc<5?'pill-ok':d.inc<8?'pill-warn':'pill-crit',
+    cpu:    d.cpu<70?'pill-ok':d.cpu<80?'pill-warn':'pill-crit',
+    ram:    d.ram<75?'pill-ok':d.ram<85?'pill-warn':'pill-crit',
+    csat:   d.csat>=4?'pill-ok':d.csat>=3?'pill-warn':'pill-crit',
+  };
+  const badgeLbl = c => c==='pill-ok'?'Normal':c==='pill-warn'?'Alerta':'Crítico';
+
+  const cards = [
+    {label:'Uptime Infraest.',val:`${d.uptime}%`,meta:'Meta: ≥ 99.5%',pct:d.uptime,badge:badges.uptime,fill:'#818CF8',id:'uptime'},
+    {label:'MTTR Promedio',val:`${d.mttr}h`,meta:'Meta: < 2h (P1)',pct:Math.max(0,100-((d.mttr/10)*100)),badge:badges.mttr,fill:'#F97316',id:'mttr'},
+    {label:'Incidentes P1',val:`${d.inc}`,meta:'Meta: < 5/mes',pct:Math.max(0,100-((d.inc/15)*100)),badge:badges.inc,fill:'#F43F5E',id:'inc'},
+    {label:'CPU Servidores',val:`${d.cpu}%`,meta:'Meta: < 70%',pct:d.cpu,badge:badges.cpu,fill:'#22C55E',id:'cpu'},
+    {label:'RAM Servidores',val:`${d.ram}%`,meta:'Meta: < 75%',pct:d.ram,badge:badges.ram,fill:'#8B5CF6',id:'ram'},
+    {label:'CSAT Usuarios',val:`${d.csat}/5`,meta:'Meta: ≥ 4.0/5.0',pct:(d.csat/5)*100,badge:badges.csat,fill:'#F59E0B',id:'csat'},
+  ];
+
+  const grid = document.getElementById('kpi-cards-row');
+  grid.innerHTML = cards.map(c=>`
+    <div class="kpi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span class="kpi-label">${c.label}</span>
+        <span class="pill ${c.badge}">${badgeLbl(c.badge)}</span>
+      </div>
+      <div class="kpi-value" id="val-${c.id}">${c.val}</div>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:${c.fill};width:0;" id="prog-${c.id}"></div></div>
+      <div class="kpi-meta">${c.meta}</div>
+    </div>
+  `).join('');
+
+  setTimeout(()=>{
+    cards.forEach(c=>{
+      const el = document.getElementById(`prog-${c.id}`);
+      if(el) el.style.width = Math.min(100,c.pct)+'%';
+    });
+  },80);
+
+  // update summary
+  const tot = document.getElementById('stat-total-inc');
+  const p1el = document.getElementById('stat-p1');
+  if(tot) tot.textContent = d.totalInc;
+  if(p1el) p1el.textContent = d.p1;
+}
+
+function buildResourcesList(){
+  const d = currentPeriod === 'actual'
+    ? {cpu:81,ram:85,stor:76,lat:195,bk:94.2,patch:72}
+    : {cpu:64,ram:69,stor:65,lat:27,bk:99.7,patch:97};
+
+  const items = [
+    {name:'CPU Promedio',val:`${d.cpu}%`,pct:d.cpu,warn:70,crit:80,fill:'#86EFAC'},
+    {name:'RAM Promedio',val:`${d.ram}%`,pct:d.ram,warn:75,crit:85,fill:'#C4B5FD'},
+    {name:'Almacenamiento',val:`${d.stor}%`,pct:d.stor,warn:75,crit:80,fill:'#FCD34D'},
+    {name:'Latencia WAN',val:`${d.lat}ms`,pct:Math.min(100,(d.lat/200)*100),warn:50,crit:80,fill:'#F9A8D4'},
+    {name:'Éxito Backups',val:`${d.bk}%`,pct:d.bk,warn:95,crit:80,fill:'#86EFAC',inverse:true},
+    {name:'Cumpl. Parches',val:`${d.patch}%`,pct:d.patch,warn:90,crit:70,fill:'#FCD34D',inverse:true},
+  ];
+  const list = document.getElementById('resources-list');
+  if(!list) return;
+  list.innerHTML = items.map(r=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:11.5px;font-weight:500;color:var(--text-secondary);">${r.name}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--text-primary);">${r.val}</span>
+      </div>
+      <div class="res-bar"><div class="res-fill" style="background:${r.fill};width:${r.pct}%;"></div></div>
+    </div>
+  `).join('');
+}
+
+function buildSedeTable(){
+  const cats = SEDES_DATA.categories;
+  const sedes = ['Mazatenango','Xela','Escuintla','Chiquimula'];
+  const tbl = document.getElementById('sede-table');
+  if(!tbl) return;
+  tbl.innerHTML = `
+    <thead><tr><th>Categoría</th>${sedes.map(s=>`<th class="center">${s.substring(0,4)}.</th>`).join('')}<th class="center">Total</th></tr></thead>
+    <tbody>
+      ${cats.map((cat,i)=>`
+        <tr>
+          <td>${cat}</td>
+          ${sedes.map(s=>`<td class="center">${SEDES_DATA[s][i]}</td>`).join('')}
+          <td class="center"><strong>${SEDES_DATA.totals[i]}</strong></td>
+        </tr>
+      `).join('')}
+      <tr style="border-top:2px solid var(--border);">
+        <td><strong>TOTAL</strong></td>
+        ${sedes.map(s=>`<td class="center"><strong>${SEDES_DATA[s].reduce((a,b)=>a+b,0)}</strong></td>`).join('')}
+        <td class="center"><strong class="pill pill-crit">${SEDES_DATA.totals.reduce((a,b)=>a+b,0)}</strong></td>
+      </tr>
+    </tbody>
+  `;
+}
+
+function initOverviewCharts(){
+  const r = getRangeData('uptime');
+  const ri = {
+    labels: (()=>{
+      const range=document.getElementById('range-filter')?.value||'all';
+      if(range==='hist')   return MONTHS_HIST;
+      if(range==='proj')   return MONTHS_PROJ;
+      if(range==='h2-24') return MONTHS_HIST.slice(0,6);
+      if(range==='h1-25') return MONTHS_HIST.slice(6,12);
+      return MONTHS_ALL;
+    })(),
+  };
+  const allInc=[...HIST.inc,...PROJ.inc];
+  const allP1=[...HIST.p1,...PROJ.p1];
+  const allP2=[...HIST.p2,...Array(7).fill(null)];
+  const allMttr=[...HIST.mttr,...PROJ.mttr];
+  const allUp=[...HIST.uptime,...PROJ.uptime];
+
+  dc('uptime');
+  charts['uptime'] = new Chart(document.getElementById('chart-uptime').getContext('2d'),{
+    type:'line',
+    data:{labels:r.labels,datasets:[
+      {label:'Uptime (%)',data:r.data,borderColor:C.indigo,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(129,140,248,1)')},
+      {label:'Meta 99.5%',data:Array(r.labels.length).fill(99.5),borderColor:'#BBF7D0',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
+    ]},
+    options:lineOpt(93,100,1)
+  });
+
+  dc('incidents');
+  charts['incidents'] = new Chart(document.getElementById('chart-incidents').getContext('2d'),{
+    type:'bar',
+    data:{labels:ri.labels,datasets:[
+      {label:'P1',data:allP1.slice(0,ri.labels.length),backgroundColor:'rgba(253,164,175,.7)',borderColor:C.rose,borderWidth:1.5,borderRadius:4},
+      {label:'P2',data:allP2.slice(0,ri.labels.length),backgroundColor:'rgba(252,211,77,.6)',borderColor:C.amber,borderWidth:1.5,borderRadius:4},
+      {label:'Total',data:allInc.slice(0,ri.labels.length),type:'line',borderColor:C.violet,borderWidth:2,pointRadius:2,tension:.4,fill:false,yAxisID:'y1'},
+    ]},
+    options:{...barOpt(),scales:{
+      x:{grid:{display:false},ticks:{font:{size:9.5},maxRotation:40}},
+      y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10}}},
+      y1:{position:'right',grid:{display:false},ticks:{font:{size:10}}}
+    }}
+  });
+
+  dc('mttr');
+  charts['mttr'] = new Chart(document.getElementById('chart-mttr').getContext('2d'),{
+    type:'line',
+    data:{labels:ri.labels,datasets:[
+      {label:'MTTR (h)',data:allMttr.slice(0,ri.labels.length),borderColor:C.amber,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(252,211,77,1)')},
+      {label:'Meta 2h',data:Array(ri.labels.length).fill(2),borderColor:'#86EFAC',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
+    ]},
+    options:lineOpt(0,10,1)
+  });
+
+  dc('donut');
+  charts['donut'] = new Chart(document.getElementById('chart-donut').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:SEDES_DATA.categories,
+      datasets:[{data:SEDES_DATA.totals,backgroundColor:['rgba(129,140,248,.7)','rgba(125,211,252,.7)','rgba(253,164,175,.7)','rgba(252,211,77,.6)','rgba(134,239,172,.7)','rgba(196,181,253,.7)','rgba(94,234,212,.6)'],borderWidth:2,borderColor:'#fff',hoverOffset:5}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,cutout:'63%',plugins:{legend:{position:'right',labels:{boxWidth:9,padding:9,font:{size:10}}},tooltip:{...TT}}}
+  });
+}
+
+function applyRangeFilter(){
+  if(document.getElementById('page-overview').classList.contains('visible')){
+    initOverviewCharts();
+  }
+}
+
+// ═══════ INFRA ═══════
+function renderAssetsTable(filter='all'){
+  const tbody = document.getElementById('assets-tbody');
+  const pillMap = {Crítico:'pill-crit','Alto riesgo':'pill-warn',Regular:'pill-warn',Bueno:'pill-ok',Deficiente:'pill-crit',Aceptable:'pill-warn'};
+  tbody.innerHTML = ASSETS.filter(a=>filter==='all'||a.estado===filter).map(a=>`
+    <tr>
+      <td>${a.activo}</td>
+      <td class="mono">${a.cant}</td>
+      <td>${a.modelo}</td>
+      <td class="mono">${a.edad}</td>
+      <td><span class="pill ${pillMap[a.estado]||'pill-warn'}">${a.estado}</span></td>
+    </tr>
+  `).join('');
+}
+function filterAssets(v){ renderAssetsTable(v); }
+
+function initInfraCharts(){
+  dc('assets');
+  charts['assets'] = new Chart(document.getElementById('chart-assets').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:['Servidores','Switches L2','Routers WAN','Firewalls','APs WiFi','UPS','Laptops','NAS'],
+      datasets:[
+        {label:'Crítico',data:[4,12,4,0,0,6,0,0],backgroundColor:'rgba(253,164,175,.75)',borderColor:C.rose,borderWidth:1.5,borderRadius:4},
+        {label:'Alerta',data:[0,0,0,2,18,0,0,2],backgroundColor:'rgba(252,211,77,.65)',borderColor:C.amber,borderWidth:1.5,borderRadius:4},
+        {label:'Bueno',data:[0,0,0,0,0,0,48,0],backgroundColor:'rgba(134,239,172,.75)',borderColor:C.green,borderWidth:1.5,borderRadius:4},
+      ]
+    },
+    options:{...barOpt(true),scales:{
+      x:{grid:{display:false},ticks:{font:{size:10}},stacked:true},
+      y:{grid:{color:'rgba(0,0,0,.04)'},stacked:true,ticks:{font:{size:10}}}
+    }}
+  });
+
+  dc('servers');
+  charts['servers'] = new Chart(document.getElementById('chart-servers').getContext('2d'),{
+    type:'radar',
+    data:{
+      labels:['CPU','RAM','Storage','Latencia','Uptime','Backup','Parches','CSAT'],
+      datasets:[
+        {label:'Actual',data:[81,85,76,97,95.5,94,72,52],backgroundColor:'rgba(253,164,175,.18)',borderColor:C.rose,borderWidth:2,pointBackgroundColor:C.rose,pointRadius:4},
+        {label:'Meta',data:[70,75,80,100,99.5,99.9,98,80],backgroundColor:'rgba(134,239,172,.12)',borderColor:C.green,borderWidth:1.5,borderDash:[4,3],pointRadius:0},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:20,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'},pointLabels:{font:{size:10.5}}}}}
+  });
+}
+
+// ═══════ INCIDENTS ═══════
+function updateIncidentCharts(){
+  const d = getIncRangeData();
+  const metrics = getActiveMetrics();
+  
+  dc('inc-full');
+  const incDatasets = [];
+  if(metrics.includes('total')) incDatasets.push({label:'Total',data:d.inc,borderColor:C.violet,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(196,181,253,1)')});
+  if(metrics.includes('p1'))    incDatasets.push({label:'P1 Críticos',data:d.p1,borderColor:C.rose,borderWidth:2,pointRadius:3,tension:.4,fill:false});
+  if(metrics.includes('p2'))    incDatasets.push({label:'P2 Altos',data:d.p2,borderColor:C.amber,borderWidth:2,pointRadius:3,tension:.4,fill:false});
+  if(!incDatasets.length) incDatasets.push({label:'Total',data:d.inc,borderColor:C.violet,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(196,181,253,1)')});
+
+  charts['inc-full'] = new Chart(document.getElementById('chart-inc-full').getContext('2d'),{
+    type:'line',data:{labels:d.labels,datasets:incDatasets},options:lineOpt(0,70,10)
+  });
+
+  dc('mttr-full');
+  charts['mttr-full'] = new Chart(document.getElementById('chart-mttr-full').getContext('2d'),{
+    type:'bar',
+    data:{labels:d.labels,datasets:[
+      {label:'MTTR (h)',data:d.mttr,backgroundColor:'rgba(252,211,77,.65)',borderColor:C.amber,borderWidth:1.5,borderRadius:5},
+      {label:'Meta 2h',data:Array(d.labels.length).fill(2),type:'line',borderColor:'#86EFAC',borderDash:[5,4],borderWidth:1.5,pointRadius:0},
+    ]},
+    options:barOpt()
+  });
+
+  renderHistoryTable();
+}
+
+function getActiveMetrics(){
+  const chips = document.querySelectorAll('#inc-metric-chips .kpi-chip.active');
+  return Array.from(chips).map(c=>c.dataset.metric);
+}
+
+function buildMetricChips(){
+  const wrap = document.getElementById('inc-metric-chips');
+  if(!wrap) return;
+  const metrics = [{id:'total',label:'Total'},{id:'p1',label:'P1'},{id:'p2',label:'P2'}];
+  wrap.innerHTML = metrics.map(m=>`<div class="kpi-chip active" data-metric="${m.id}" onclick="toggleMetric(this)">${m.label}</div>`).join('');
+}
+function toggleMetric(el){
+  el.classList.toggle('active');
+  updateIncidentCharts();
+}
+
+function renderHistoryTable(){
+  const sort = document.getElementById('hist-sort')?.value||'asc';
+  const allData = MONTHS_ALL.map((m,i)=>({
+    m, inc:[...HIST.inc,...PROJ.inc][i]||null,
+    p1:[...HIST.p1,...PROJ.p1][i]||null,
+    p2:[...HIST.p2,...Array(7).fill('—')][i],
+    uptime:[...HIST.uptime,...PROJ.uptime][i]||null,
+    mttr:[...HIST.mttr,...PROJ.mttr][i]||null,
+    cpu:[...HIST.cpu,...PROJ.cpu][i]||null,
+    ram:[...HIST.ram,...PROJ.ram][i]||null,
+    stor:[...HIST.stor,...PROJ.stor][i]||null,
+    lat:[...HIST.lat,...PROJ.lat][i]||null,
+    csat:[...HIST.csat,...PROJ.csat][i]||null,
+    isProj: i>=12
+  }));
+  let sorted = [...allData];
+  if(sort==='desc') sorted.reverse();
+  else if(sort==='inc-desc') sorted.sort((a,b)=>(b.inc||0)-(a.inc||0));
+  else if(sort==='uptime-asc') sorted.sort((a,b)=>(a.uptime||100)-(b.uptime||100));
+
+  const tb = document.getElementById('history-table');
+  if(!tb) return;
+  tb.innerHTML = sorted.map(r=>{
+    const upOk = r.uptime>=99.5, mtOk = r.mttr<2;
+    const rowStyle = r.isProj?'background:rgba(134,239,172,.06);':'';
+    return `<tr style="${rowStyle}">
+      <td class="mono">${r.m}${r.isProj?' <span class="pill pill-ok" style="font-size:9px;padding:1px 5px;">Proy.</span>':''}</td>
+      <td class="center">${r.inc??'—'}</td>
+      <td class="center"><span class="pill ${(r.p1||0)>5?'pill-crit':'pill-warn'}">${r.p1??'—'}</span></td>
+      <td class="center">${r.p2}</td>
+      <td class="center"><span class="pill ${upOk?'pill-ok':'pill-crit'}">${r.uptime??'—'}${r.uptime?'%':''}</span></td>
+      <td class="center"><span class="pill ${mtOk?'pill-ok':'pill-crit'}">${r.mttr??'—'}${r.mttr?'h':''}</span></td>
+      <td class="center">${r.cpu??'—'}${r.cpu?'%':''}</td>
+      <td class="center">${r.ram??'—'}${r.ram?'%':''}</td>
+      <td class="center">${r.stor??'—'}${r.stor?'%':''}</td>
+      <td class="center">${r.lat??'—'}${r.lat?'ms':''}</td>
+      <td class="center">${r.csat??'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════ SECURITY ═══════
+function buildISOControls(){
+  const list = document.getElementById('iso-controls-list');
+  if(!list) return;
+  list.innerHTML = ISO_CONTROLS.map(c=>{
+    const cls = c.val>=80?'#86EFAC':c.val>=60?'#FCD34D':'#FDA4AF';
+    const txtcls = c.val>=80?'color:#166534':c.val>=60?'color:#854D0E':'color:#9F1239';
+    return `<div style="margin-bottom:9px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+        <span style="font-size:11.5px;color:var(--text-secondary);">${c.name}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;${txtcls}">${c.val}%</span>
+      </div>
+      <div class="res-bar"><div class="res-fill" style="background:${cls};width:${c.val}%;"></div></div>
+    </div>`;
+  }).join('') + `<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">Cumplimiento Global ISO 27001</span>
+    <span class="pill pill-crit">45%</span>
+  </div>
+  <div class="res-bar" style="margin-top:6px;"><div class="res-fill" style="background:#FDA4AF;width:45%;"></div></div>`;
+}
+
+function updateSIEM(){
+  const view = document.getElementById('siem-view')?.value||'stack';
+  dc('siem');
+  let datasets;
+  if(view==='high'){
+    datasets = [{label:'Severidad Alta',data:SIEM_HIGH,backgroundColor:'rgba(253,164,175,.75)',borderColor:C.rose,borderWidth:1.5,borderRadius:4}];
+  } else if(view==='med'){
+    datasets = [{label:'Severidad Media',data:SIEM_MED,backgroundColor:'rgba(252,211,77,.65)',borderColor:C.amber,borderWidth:1.5,borderRadius:4}];
+  } else {
+    datasets = [
+      {label:'Severidad Alta',data:SIEM_HIGH,backgroundColor:'rgba(253,164,175,.75)',borderColor:C.rose,borderWidth:1.5,borderRadius:4},
+      {label:'Severidad Media',data:SIEM_MED,backgroundColor:'rgba(252,211,77,.65)',borderColor:C.amber,borderWidth:1.5,borderRadius:4},
+      {label:'Meta < 10',data:Array(12).fill(10),type:'line',borderColor:'#86EFAC',borderDash:[5,4],borderWidth:1.5,pointRadius:0},
+    ];
+  }
+  const stacked = view==='stack';
+  charts['siem'] = new Chart(document.getElementById('chart-siem').getContext('2d'),{
+    type:'bar',data:{labels:MONTHS_HIST,datasets},
+    options:{...barOpt(stacked),scales:{
+      x:{grid:{display:false},ticks:{font:{size:9.5},maxRotation:40},stacked},
+      y:{grid:{color:'rgba(0,0,0,.04)'},stacked,ticks:{font:{size:10}}}
+    }}
+  });
+}
+
+function initSecurityCharts(){
+  updateSIEM();
+  dc('patches');
+  charts['patches'] = new Chart(document.getElementById('chart-patches').getContext('2d'),{
+    type:'line',
+    data:{labels:MONTHS_HIST,datasets:[
+      {label:'Cumplimiento (%)',data:PATCH_HIST,borderColor:C.teal,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(94,234,212,1)')},
+      {label:'Meta 98%',data:Array(12).fill(98),borderColor:'#86EFAC',borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false},
+    ]},options:lineOpt(50,100,10)
+  });
+
+  dc('sec-compare');
+  charts['sec-compare'] = new Chart(document.getElementById('chart-sec-compare').getContext('2d'),{
+    type:'radar',
+    data:{
+      labels:['Parches','Backups','SIEM','Endpoints','Perimetral','Acceso'],
+      datasets:[
+        {label:'Actual',data:[72,94,32,55,60,35],backgroundColor:'rgba(253,164,175,.18)',borderColor:C.rose,borderWidth:2,pointBackgroundColor:C.rose,pointRadius:3},
+        {label:'Proyectado',data:[97,99.7,70,80,85,75],backgroundColor:'rgba(134,239,172,.12)',borderColor:C.green,borderWidth:1.5,pointBackgroundColor:C.green,pointRadius:3},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}},scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'},pointLabels:{font:{size:10.5}}}}}
+  });
+}
+
+// ═══════ KPIs ═══════
+function switchKPIView(v){
+  currentKPIView = v;
+  document.getElementById('kpi-view-actual').classList.toggle('active',v==='actual');
+  document.getElementById('kpi-view-proj').classList.toggle('active',v==='proj');
+  renderKPITable();
+}
+
+function renderKPITable(){
+  const persp = document.getElementById('kpi-persp')?.value||'all';
+  const estado = document.getElementById('kpi-estado')?.value||'all';
+  const data = currentKPIView==='actual'?KPI_ACTUAL:KPI_PROJ;
+  const filtered = data.filter(k=>(persp==='all'||k.persp===persp)&&(estado==='all'||k.estado===estado));
+  
+  const crit = filtered.filter(k=>k.estado==='Crítico').length;
+  const warn = filtered.filter(k=>k.estado==='Alerta').length;
+  const ok   = filtered.filter(k=>k.estado==='Normal').length;
+  document.getElementById('kpi-count-crit').textContent = `${crit} Críticos`;
+  document.getElementById('kpi-count-warn').textContent = `${warn} Alertas`;
+  document.getElementById('kpi-count-ok').textContent   = `${ok} Normales`;
+
+  const pillMap = {Crítico:'pill-crit',Alerta:'pill-warn',Normal:'pill-ok'};
+  document.getElementById('kpis-tbody').innerHTML = filtered.map(k=>{
+    const barColor = k.estado==='Crítico'?'#FECACA':k.estado==='Alerta'?'#FEF08A':'#BBF7D0';
+    return `<tr>
+      <td class="mono" style="color:var(--indigo);">${k.id}</td>
+      <td>${k.kpi}</td>
+      <td class="mono">${k.val}</td>
+      <td class="mono">${k.meta}</td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:80px;height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:${k.pct}%;background:${barColor};border-radius:3px;"></div></div><span style="font-size:10px;color:var(--text-muted);">${k.pct}%</span></div></td>
+      <td><span class="pill pill-info">${k.persp}</span></td>
+      <td><span class="pill ${pillMap[k.estado]}">${k.estado}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════ TRENDS ═══════
+function updateTrendCharts(){
+  const metric = document.getElementById('trend-metric')?.value||'all';
+  const show = document.getElementById('trend-show')?.value||'both';
+  const container = document.getElementById('trend-charts-container');
+  if(!container) return;
+
+  const allMetrics = [
+    {key:'uptime',label:'Uptime (%)',color:C.indigo,opt:lineOpt(92,101,1),min:92,max:101,step:1},
+    {key:'p1',label:'Incidentes P1',color:C.rose,opt:lineOpt(0,15,2),min:0,max:15,step:2},
+    {key:'csat',label:'CSAT',color:C.amber,opt:lineOpt(1,5,.5),min:1,max:5,step:.5},
+    {key:'mttr',label:'MTTR (h)',color:C.violet,opt:lineOpt(0,10,1),min:0,max:10,step:1},
+    {key:'cpu',label:'CPU (%)',color:C.green,opt:lineOpt(50,90,5),min:50,max:90,step:5},
+    {key:'ram',label:'RAM (%)',color:C.sky,opt:lineOpt(55,95,5),min:55,max:95,step:5},
+    {key:'lat',label:'Latencia WAN (ms)',color:C.pink,opt:lineOpt(0,210,30),min:0,max:210,step:30},
+  ];
+
+  const toShow = metric==='all'?allMetrics:allMetrics.filter(m=>m.key===metric||
+    (metric==='inc'&&m.key==='p1'));
+
+  // Destroy old trend charts
+  Object.keys(charts).filter(k=>k.startsWith('trend-')).forEach(k=>{dc(k);});
+
+  container.innerHTML = toShow.map(m=>`
+    <div class="chart-card">
+      <h3>${m.label} — Histórico vs Proyectado</h3>
+      <div class="subtitle">Real (Jun 24–May 25) + Proyectado (Jun–Dic 25)</div>
+      <canvas id="chart-trend-${m.key}" height="200"></canvas>
+    </div>
+  `).join('');
+  container.className = `chart-grid ${toShow.length===1?'':'chart-grid-2'}`;
+
+  setTimeout(()=>{
+    toShow.forEach(m=>{
+      const histData = HIST[m.key]||HIST.p1;
+      const projData = PROJ[m.key]||PROJ.p1;
+      let labels, dsets;
+      if(show==='hist'){labels=MONTHS_HIST;dsets=[{label:'Real',data:histData,borderColor:m.color,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,m.color+'99')}];}
+      else if(show==='proj'){labels=MONTHS_PROJ;dsets=[{label:'Proyectado',data:projData,borderColor:C.green,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(134,239,172,1)')}];}
+      else {
+        labels=MONTHS_ALL;
+        dsets=[
+          {label:'Real',data:[...histData,...Array(7).fill(null)],borderColor:m.color,borderWidth:2,pointRadius:3,tension:.4,fill:false},
+          {label:'Proyectado',data:[...Array(12).fill(null),...projData],borderColor:C.green,borderWidth:2,pointRadius:3,tension:.4,fill:true,backgroundColor:(ctx)=>gradFill(ctx,'rgba(134,239,172,1)')},
+        ];
+      }
+      const cvs = document.getElementById(`chart-trend-${m.key}`);
+      if(cvs){
+        charts[`trend-${m.key}`] = new Chart(cvs.getContext('2d'),{
+          type:'line',data:{labels,datasets:dsets},
+          options:lineOpt(m.min,m.max,m.step)
+        });
+      }
+    });
+  },60);
+}
+
+// ═══════ SEDES ═══════
+function filterSede(el, sede){
+  document.querySelectorAll('#sede-chips-main .sede-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentSede = sede;
+  updateSedeView();
+}
+
+function updateSedeView(){
+  const sede = currentSede;
+  const cats = SEDES_DATA.categories;
+  const sedes = ['Mazatenango','Xela','Escuintla','Chiquimula'];
+
+  // Stat strip
+  const strip = document.getElementById('sede-stat-strip');
+  if(strip){
+    if(sede==='all'){
+      strip.innerHTML = sedes.map(s=>{
+        const tot = SEDES_DATA[s].reduce((a,b)=>a+b,0);
+        const pct = Math.round((tot/SEDES_DATA.totals.reduce((a,b)=>a+b,0))*100);
+        return `<div class="stat-item"><div class="stat-val">${tot}</div><div class="stat-lbl">${s} (${pct}%)</div></div>`;
+      }).join('');
+    } else {
+      const tot = SEDES_DATA[sede].reduce((a,b)=>a+b,0);
+      strip.innerHTML = `<div class="stat-item"><div class="stat-val">${tot}</div><div class="stat-lbl">Total incidentes</div></div>` +
+        cats.slice(0,5).map((c,i)=>`<div class="stat-item"><div class="stat-val" style="font-size:14px;">${SEDES_DATA[sede][i]}</div><div class="stat-lbl">${c.substring(0,14)}</div></div>`).join('');
+    }
+  }
+
+  // Category chart
+  dc('sede-cat');
+  const catData = sede==='all' ? SEDES_DATA.totals : SEDES_DATA[sede];
+  charts['sede-cat'] = new Chart(document.getElementById('chart-sede-cat').getContext('2d'),{
+    type:'bar',
+    data:{labels:cats,datasets:[{label:sede==='all'?'Total Sedes':sede,data:catData,backgroundColor:['rgba(129,140,248,.7)','rgba(125,211,252,.7)','rgba(253,164,175,.7)','rgba(252,211,77,.6)','rgba(134,239,172,.7)','rgba(196,181,253,.7)','rgba(94,234,212,.6)'],borderWidth:0,borderRadius:5}]},
+    options:{...barOpt(),indexAxis:'y',plugins:{legend:{display:false},tooltip:{...TT}},scales:{y:{grid:{display:false},ticks:{font:{size:10}}},x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10}}}}}
+  });
+
+  // Compare chart
+  dc('sede-compare');
+  charts['sede-compare'] = new Chart(document.getElementById('chart-sede-compare').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:cats,
+      datasets:sedes.map((s,i)=>({
+        label:s,
+        data:SEDES_DATA[s],
+        backgroundColor:[`rgba(129,140,248,.65)`,`rgba(94,234,212,.65)`,`rgba(253,164,175,.65)`,`rgba(252,211,77,.65)`][i],
+        borderWidth:0,borderRadius:3
+      }))
+    },
+    options:{...barOpt(),scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:30}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10}}}}}
+  });
+
+  // Detail table
+  const tbl = document.getElementById('sede-detail-table');
+  if(tbl){
+    const cols = sede==='all'?sedes:[];
+    tbl.innerHTML = `
+      <thead><tr><th>Categoría</th>${cols.map(s=>`<th class="center">${s}</th>`).join('')}${sede!=='all'?'':'<th class="center">Total</th>'}</tr></thead>
+      <tbody>
+        ${cats.map((cat,i)=>`<tr>
+          <td>${cat}</td>
+          ${sede==='all'?cols.map(s=>`<td class="center">${SEDES_DATA[s][i]}</td>`).join('')+'<td class="center"><strong>'+SEDES_DATA.totals[i]+'</strong></td>':
+            `<td class="center">${SEDES_DATA[sede][i]}</td>`}
+        </tr>`).join('')}
+        <tr style="border-top:2px solid var(--border);">
+          <td><strong>TOTAL</strong></td>
+          ${sede==='all'?cols.map(s=>`<td class="center"><strong>${SEDES_DATA[s].reduce((a,b)=>a+b,0)}</strong></td>`).join('')+'<td class="center"><span class="pill pill-crit">'+SEDES_DATA.totals.reduce((a,b)=>a+b,0)+'</span></td>':
+            `<td class="center"><strong>${SEDES_DATA[sede].reduce((a,b)=>a+b,0)}</strong></td>`}
+        </tr>
+      </tbody>`;
+  }
+}
+
+// ═══════ BUDGET ═══════
+let budgetChartInstance = null;
+function updateBudgetChart(){
+  const type = document.getElementById('budget-chart-type')?.value||'doughnut';
+  if(budgetChartInstance){budgetChartInstance.destroy();budgetChartInstance=null;}
+  const labels = BUDGET.map(b=>b.fase);
+  const data   = BUDGET.map(b=>b.inv);
+  const colors = ['rgba(129,140,248,.7)','rgba(125,211,252,.7)','rgba(253,164,175,.7)','rgba(196,181,253,.7)','rgba(94,234,212,.7)','rgba(252,211,77,.6)'];
+  budgetChartInstance = new Chart(document.getElementById('chart-budget').getContext('2d'),{
+    type,
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:5,borderRadius:type==='bar'?5:0}]},
+    options:{responsive:true,maintainAspectRatio:true,
+      cutout:type==='doughnut'?'58%':0,
+      plugins:{legend:{position:type==='bar'?'top':'right',labels:{boxWidth:10,font:{size:10},padding:10}},tooltip:{callbacks:{label:(c)=>`Q. ${c.raw.toLocaleString()}`},...TT}},
+      scales:type==='bar'?{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>'Q.'+v.toLocaleString()}}}:{}
+    }
+  });
+}
+
+function renderBudgetTable(){
+  const tbody = document.getElementById('budget-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = [...BUDGET,{fase:'TOTAL',desc:'',inv:1850000,pct:100,isTotal:true}].map(b=>`
+    <tr${b.isTotal?' style="background:var(--indigo-light);font-weight:700;"':''}>
+      <td class="mono">${b.fase}</td>
+      <td>${b.desc}</td>
+      <td class="mono">Q. ${b.inv.toLocaleString()}</td>
+      <td class="mono">${b.pct}%</td>
+      <td>${b.isTotal?'':` <div style="width:90px;height:5px;border-radius:3px;background:var(--border);overflow:hidden;"><div style="height:100%;width:${b.pct}%;background:var(--indigo);border-radius:3px;"></div></div>`}</td>
+    </tr>
+  `).join('');
+}
+
+// ═══════ NAV ═══════
+const PAGE_TITLES = {
+  overview:'Resumen General',infra:'Infraestructura TI',incidents:'Gestión de Incidentes',
+  security:'Seguridad Informática',kpis:'Catálogo de KPIs',trends:'Análisis de Tendencias',
+  sedes:'Análisis por Sede',budget:'Presupuesto del Proyecto'
+};
+let currentPage = 'overview';
+
+function setNav(el, page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page-content').forEach(p=>p.classList.remove('visible'));
+  const pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('visible');
+  currentPage = page;
+  document.getElementById('page-title').textContent = PAGE_TITLES[page]||page;
+
+  if(page==='infra')     { setTimeout(()=>{initInfraCharts();renderAssetsTable();},50); }
+  if(page==='incidents') { setTimeout(()=>{buildMetricChips();updateIncidentCharts();},50); }
+  if(page==='security')  { setTimeout(()=>{initSecurityCharts();buildISOControls();},50); }
+  if(page==='kpis')      { setTimeout(()=>renderKPITable(),50); }
+  if(page==='trends')    { setTimeout(()=>updateTrendCharts(),50); }
+  if(page==='sedes')     { setTimeout(()=>updateSedeView(),50); }
+  if(page==='budget')    { setTimeout(()=>{updateBudgetChart();renderBudgetTable();},50); }
+}
+
+// ═══════ PERIOD SWITCH ═══════
+function switchPeriod(p){
+  currentPeriod = p;
+  document.getElementById('btn-actual').classList.toggle('active',p==='actual');
+  document.getElementById('btn-proyect').classList.toggle('active',p==='proyect');
+  const st = document.getElementById('sys-status');
+  if(p==='proyect'){st.className='pill pill-ok';st.textContent='Estado Proyectado';}
+  else{st.className='pill pill-crit';st.textContent='Estado Actual Crítico';}
+  buildKPICards();
+  buildResourcesList();
+  if(currentPage==='overview') initOverviewCharts();
+}
+
+// ═══════ DATE ═══════
+function updateDate(){
+  const now = new Date();
+  document.getElementById('live-date').textContent =
+    now.toLocaleDateString('es-GT',{weekday:'short',year:'numeric',month:'short',day:'numeric'})
+    +' '+now.toLocaleTimeString('es-GT',{hour:'2-digit',minute:'2-digit'});
+}
+updateDate(); setInterval(updateDate,30000);
+
+// ═══════ INIT ═══════
+window.addEventListener('load',()=>{
+  buildKPICards();
+  buildResourcesList();
+  buildSedeTable();
+  initOverviewCharts();
+  // Set initial status pill
+  const st = document.getElementById('sys-status');
+  st.className='pill pill-crit';st.textContent='Estado Actual Crítico';
+});
+</script>
+</body>
+</html>

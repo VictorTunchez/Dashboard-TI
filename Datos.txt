@@ -1,0 +1,124 @@
+MES       | INC_TOTAL | P1 | P2 | UPTIME% | MTTR(h) | CPU% | RAM% | STORAGE% | LATENCIA_WAN(ms) | CSAT
+Jun-24    |    42     |  6 | 11 |  97.2   |   5.8   |  72  |  76  |    65    |       170        |  3.1
+Jul-24    |    38     |  4 |  9 |  97.8   |   5.2   |  70  |  74  |    66    |       162        |  3.3
+Ago-24    |    51     |  8 | 14 |  96.4   |   6.4   |  76  |  80  |    67    |       180        |  2.9
+Sep-24    |    45     |  5 | 12 |  97.1   |   5.9   |  74  |  79  |    68    |       175        |  3.0
+Oct-24    |    39     |  4 |  8 |  98.1   |   4.8   |  68  |  72  |    68    |       168        |  3.4
+Nov-24    |    47     |  7 | 13 |  96.9   |   6.1   |  75  |  78  |    69    |       178        |  2.8
+Dic-24    |    62     | 10 | 18 |  95.2   |   7.3   |  82  |  86  |    70    |       192        |  2.5
+Ene-25    |    55     |  9 | 15 |  95.8   |   7.0   |  78  |  82  |    71    |       185        |  2.6
+Feb-25    |    48     |  6 | 13 |  96.6   |   6.2   |  76  |  80  |    73    |       178        |  3.0
+Mar-25    |    44     |  5 | 10 |  97.3   |   5.5   |  74  |  79  |    74    |       172        |  3.2
+Abr-25    |    57     |  9 | 16 |  96.1   |   6.8   |  79  |  83  |    75    |       190        |  2.7
+May-25    |    61     | 11 | 17 |  95.5   |   7.1   |  81  |  85  |    76    |       195        |  2.6
+
+MES       | INC_TOTAL | P1 | UPTIME% | MTTR(h) | CPU% | RAM% | STORAGE% | LATENCIA_WAN(ms) | CSAT
+Jun-25    |    28     |  3 |  99.1   |   3.2   |  62  |  68  |    68    |        28        |  3.6
+Jul-25    |    22     |  2 |  99.3   |   2.8   |  60  |  66  |    67    |        25        |  3.8
+Ago-25    |    25     |  2 |  99.2   |   3.0   |  63  |  67  |    69    |        27        |  3.7
+Sep-25    |    18     |  1 |  99.5   |   2.1   |  58  |  64  |    65    |        24        |  4.0
+Oct-25    |    15     |  1 |  99.6   |   1.9   |  57  |  63  |    63    |        22        |  4.1
+Nov-25    |    20     |  2 |  99.4   |   2.5   |  61  |  66  |    64    |        26        |  3.9
+Dic-25    |    24     |  2 |  99.3   |   2.7   |  64  |  69  |    66    |        28        |  3.8
+
+KPI               | VALOR_ACTUAL | META        | ESTADO
+Uptime            | 95.5%        | >= 99.5%    | Crítico
+MTTR              | 7.1h         | < 2h (P1)   | Crítico
+Incidentes P1     | 11           | < 5/mes     | Crítico
+CPU Servidores    | 81%          | < 70%       | Alerta
+RAM Servidores    | 85%          | < 75%       | Alerta
+CSAT              | 2.6/5.0      | >= 4.0/5.0  | Crítico
+Latencia WAN      | 195ms        | < 30ms      | Crítico
+Storage           | 76%          | < 80%       | Normal
+Éxito Backups     | 94.2%        | >= 99.9%    | Alerta
+Cumpl. Parches    | 72%          | >= 98%      | Alerta
+Total Incidentes  | 61           | < 20/mes    | Crítico
+
+KPI               | VALOR_PROY  | META        | ESTADO
+Uptime            | 99.3%       | >= 99.5%    | Alerta
+MTTR              | 2.7h        | < 2h (P1)   | Alerta
+Incidentes P1     | 2           | < 5/mes     | Normal
+CPU Servidores    | 64%         | < 70%       | Normal
+RAM Servidores    | 69%         | < 75%       | Normal
+CSAT              | 3.8/5.0     | >= 4.0/5.0  | Alerta
+Latencia WAN      | 27ms        | < 30ms      | Normal
+Storage           | 65%         | < 80%       | Normal
+Éxito Backups     | 99.7%       | >= 99.9%    | Alerta
+Cumpl. Parches    | 97%         | >= 98%      | Alerta
+Total Incidentes  | 22          | < 20/mes    | Alerta
+
+CATEGORÍA                  | MAZATENANGO | XELA | ESCUINTLA | CHIQUIMULA | TOTAL
+Fallo de Hardware          |      4      |   1  |     1     |      1     |   7
+Conectividad WAN           |      2      |   4  |     5     |      5     |  16
+Errores ERP                |      6      |   3  |     2     |      2     |  13
+Problemas de Usuario       |      8      |   4  |     3     |      3     |  18
+Incidentes de Seguridad    |      2      |   1  |     1     |      1     |   5
+Fallos de Backup           |      1      |   0  |     0     |      0     |   1
+Solicitudes de Servicio    |     12      |   5  |     4     |      3     |  24
+TOTAL                      |     35      |  18  |    16     |     15     |  84
+
+ID     | KPI                         | VALOR_ACTUAL   | META          | PERSPECTIVA   | ESTADO
+KPI-01 | Uptime Infraestructura      | 95.5%          | >= 99.5%      | Disponibilidad| Crítico
+KPI-02 | MTTR                        | 7.1h           | < 2h (P1)     | Incidentes    | Crítico
+KPI-03 | MTBF                        | 22 días        | > 90 días     | Disponibilidad| Crítico
+KPI-04 | Uso CPU Servidores          | 81%            | < 70%         | Rendimiento   | Alerta
+KPI-05 | Uso RAM Servidores          | 85%            | < 75%         | Rendimiento   | Alerta
+KPI-06 | Uso Almacenamiento          | 76%            | < 80%         | Capacidad     | Normal
+KPI-07 | Latencia WAN                | 195ms          | < 30ms        | Red           | Crítico
+KPI-08 | Incidentes por Mes          | 61 (11 P1)     | < 15 (P1+P2)  | Incidentes    | Crítico
+KPI-09 | Resolución 1er Nivel        | 48%            | >= 70%        | Eficiencia    | Alerta
+KPI-10 | Cumplimiento de Parches     | 72%            | >= 98%        | Seguridad     | Alerta
+KPI-11 | Alertas SIEM/mes            | 47             | < 10          | Seguridad     | Crítico
+KPI-12 | Tiempo Respuesta ERP        | 4.8s           | < 2s          | Aplicaciones  | Alerta
+KPI-13 | Éxito de Backups            | 94.2%          | >= 99.9%      | Continuidad   | Alerta
+KPI-14 | Costo por Incidente         | Q. 890         | < Q. 450      | Financiero    | Crítico
+KPI-15 | CSAT Usuarios               | 2.6/5.0        | >= 4.0/5.0    | Experiencia   | Alerta
+
+MES    | ALTA | MEDIA | META_ALTA
+Jun-24 |  18  |  12   |   10
+Jul-24 |  15  |  10   |   10
+Ago-24 |  22  |  14   |   10
+Sep-24 |  20  |  13   |   10
+Oct-24 |  14  |   9   |   10
+Nov-24 |  21  |  13   |   10
+Dic-24 |  28  |  16   |   10
+Ene-25 |  25  |  14   |   10
+Feb-25 |  20  |  12   |   10
+Mar-25 |  18  |  11   |   10
+Abr-25 |  24  |  15   |   10
+May-25 |  27  |  15   |   10
+
+DOMINIO                  | CUMPL_ACTUAL | META
+Control de Acceso        |     35%      | 100%
+Gestión de Contraseñas   |     40%      | 100%
+Protección Endpoints     |     55%      | 100%
+Gestión de Parches       |     72%      | 100%
+Respaldo de Datos        |     94%      | 100%
+Seguridad Perimetral     |     60%      | 100%
+Monitoreo / SIEM         |     15%      | 100%
+Concienciación           |     30%      | 100%
+GLOBAL                   |     45%      | 100%
+
+MES    | CUMPL%
+Jun-24 |  60
+Jul-24 |  62
+Ago-24 |  58
+Sep-24 |  63
+Oct-24 |  65
+Nov-24 |  61
+Dic-24 |  67
+Ene-25 |  68
+Feb-25 |  70
+Mar-25 |  71
+Abr-25 |  72
+May-25 |  72
+META   |  98
+
+FASE    | DESCRIPCIÓN                  | INVERSION_Q  | PORCENTAJE
+Fase 1  | Diagnóstico y Diseño         |    85,000    |   4.6%
+Fase 2  | Infraestructura de Red       |   420,000    |  22.7%
+Fase 3  | Virtualización y Servidores  |   680,000    |  36.8%
+Fase 4  | Monitoreo y Seguridad        |   315,000    |  17.0%
+Fase 5  | BI y Dashboard KPI           |   210,000    |  11.4%
+—       | Contingencia (8%)            |   140,000    |   7.6%
+TOTAL   |                              | 1,850,000    | 100.0%
